@@ -31,10 +31,11 @@ trait ReverseRoute extends HttpService with CreationSupport {
       entity(as[ReverseRequest]) { request =>
         implicit val timeout = Timeout(20 seconds)
 
-        //TODO based on the result (ReverseResult or PalindromeResult)
-        // complete with a ReverseResponse that indicates isPalindrome
         val futureResponse = reverseActor.ask(Reverse(request.value))
-                                         .mapTo[ReverseResult].map(r=>ReverseResponse(r.value))
+                                         .map {
+                                           case PalindromeResult     => ReverseResponse(request.value, true)
+                                           case ReverseResult(value) => ReverseResponse(value)
+                                         }
 
         complete(futureResponse)
       }
