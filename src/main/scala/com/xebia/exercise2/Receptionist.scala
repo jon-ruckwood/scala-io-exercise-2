@@ -12,16 +12,15 @@ import akka.util.Timeout
 
 import spray.httpx.SprayJsonSupport._
 
-//TODO mixin your ActorContextCreationSupport trait
 class Receptionist extends HttpServiceActor
-                      with ReverseRoute {
+                      with ReverseRoute
+                      with ActorContextCreationSupport {
   implicit def executionContext = context.dispatcher
 
   def receive = runRoute(reverseRoute)
 }
 
-//TODO mixin the CreationSupport trait so createChild will be available here
-trait ReverseRoute extends HttpService {
+trait ReverseRoute extends HttpService with CreationSupport {
   implicit def executionContext: ExecutionContext
 
   import ReverseActor._
@@ -42,4 +41,3 @@ trait ReverseRoute extends HttpService {
     }
   }
 }
-
