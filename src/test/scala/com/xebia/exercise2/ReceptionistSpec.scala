@@ -12,11 +12,11 @@ import org.specs2.mutable.Specification
 class ReceptionistSpec extends Specification with Specs2RouteTest {
 
   trait TestCreationSupport extends CreationSupport {
-    //TODO implement the TestCreationSupport that creates a FakeReverseActor
+    def getChild(name: String): Option[ActorRef] = None
+    def createChild(props: Props, name: String): ActorRef = system.actorOf(Props[FakeReverseActor], "fakereverse")
   }
 
-  //TODO extend with TestCreationSupport and remove createChild implementation here
-  val subject = new ReverseRoute {
+  val subject = new ReverseRoute with TestCreationSupport {
     implicit def actorRefFactory: ActorRefFactory = system
     implicit def executionContext = system.dispatcher
   }
@@ -42,9 +42,11 @@ class ReceptionistSpec extends Specification with Specs2RouteTest {
   }
 }
 
-//TODO create a FakeReverseActor that only responds to
-// Reverse("akka") and Reverse("some text to reverse") and sends back the expected result for the test
 class FakeReverseActor extends Actor {
   import ReverseActor._
 
+  def receive = {
+      case Reverse("akka") => sender ! PalindromeResult
+      case Reverse("some text to reverse") => sender ! ReverseResult("esrever ot txet emos")
+  }
 }
